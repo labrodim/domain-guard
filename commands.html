@@ -4,32 +4,8 @@
     <meta charset="utf-8" />
     <title>Domain Guard</title>
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-    <script>
-        console.log("DG: script loaded");
-
-        Office.onReady(function(info) {
-            console.log("DG: Office.onReady fired, host=" + info.host + ", platform=" + info.platform);
-        });
-
-        function onMessageSendHandler(event) {
-            console.log("DG: handler called");
-            console.log("DG: event type=" + typeof event);
-            console.log("DG: event.completed type=" + typeof event.completed);
-            try {
-                event.completed({ allowEvent: true });
-                console.log("DG: completed() called OK");
-            } catch(e) {
-                console.log("DG: ERROR: " + e.message);
-            }
-        }
-
-        try {
-            Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
-            console.log("DG: associate() called OK");
-        } catch(e) {
-            console.log("DG: associate ERROR: " + e.message);
-        }
-    </script>
+    <script src="config.js"></script>
+    <script src="commands.js"></script>
 </head>
 <body></body>
 </html>
