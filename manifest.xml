@@ -27,6 +27,14 @@
     </Sets>
   </Requirements>
 
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://labrodim.github.io/domain-guard/commands.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
   <Permissions>ReadWriteItem</Permissions>
 
   <Rule xsi:type="RuleCollection" Mode="Or">
