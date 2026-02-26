@@ -37,12 +37,17 @@ function onMessageSendHandler(event) {
             });
 
             if (unique.length > 1) {
-                event.completed({
+                var options = {
                     allowEvent: false,
                     errorMessage: "Recipients span " + unique.length
                         + " external domains: " + unique.join(", ")
                         + ". Please verify all recipients."
-                });
+                };
+                // Add "Send Anyway" button if supported (Mailbox 1.14+)
+                if (Office.MailboxEnums && Office.MailboxEnums.SendModeOverride) {
+                    options.sendModeOverride = Office.MailboxEnums.SendModeOverride.PromptUser;
+                }
+                event.completed(options);
             } else {
                 event.completed({ allowEvent: true });
             }
