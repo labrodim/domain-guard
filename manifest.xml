@@ -67,7 +67,7 @@
               <LaunchEvents>
                 <LaunchEvent Type="OnMessageSend"
                              FunctionName="onMessageSendHandler"
-                             SendMode="SoftBlock"/>
+                             SendMode="PromptUser"/>
               </LaunchEvents>
               <SourceLocation resid="WebViewRuntime.Url"/>
             </ExtensionPoint>
