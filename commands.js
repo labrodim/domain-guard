@@ -1,4 +1,6 @@
-Office.onReady(function () {});
+// DomainGuard - OnMessageSend handler
+
+Office.onReady();
 
 var CFG = (typeof DG_CONFIG !== "undefined") ? DG_CONFIG : {
     internalDomains: [
@@ -11,34 +13,17 @@ var CFG = (typeof DG_CONFIG !== "undefined") ? DG_CONFIG : {
     blockOnError: false
 };
 
-function getRecipientsAsync(item) {
-    return new Promise(function (resolve, reject) {
+function onMessageSendHandler(event) {
+    try {
+        var item = Office.context.mailbox.item;
         var all = [];
         var pending = 3;
 
-        function done() {
-            pending--;
-            if (pending === 0) resolve(all);
-        }
-
-        ["to", "cc", "bcc"].forEach(function (field) {
-            item[field].getAsync(function (result) {
-                if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
-                    all = all.concat(result.value);
-                }
-                done();
-            });
-        });
-    });
-}
-
-function onItemSend(event) {
-    try {
-        getRecipientsAsync(Office.context.mailbox.item).then(function (recipients) {
+        function checkDomains() {
             var seen = {};
             var unique = [];
 
-            recipients.forEach(function (r) {
+            all.forEach(function (r) {
                 var domain = (r.emailAddress || "").split("@")[1];
                 if (domain) {
                     domain = domain.toLowerCase();
@@ -52,21 +37,33 @@ function onItemSend(event) {
             });
 
             if (unique.length > 1) {
-                Office.context.mailbox.item.notificationMessages.addAsync(
-                    "domainGuardWarning",
-                    {
-                        type: "errorMessage",
-                        message: "Warning: Recipients span " + unique.length
-                            + " external domains (" + unique.join(", ")
-                            + "). Remove this message and re-send to proceed."
-                    }
-                );
-                event.completed({ allowEvent: false });
+                event.completed({
+                    allowEvent: false,
+                    errorMessage: "Recipients span " + unique.length
+                        + " external domains: " + unique.join(", ")
+                        + ". Please verify all recipients."
+                });
             } else {
                 event.completed({ allowEvent: true });
             }
+        }
+
+        function done() {
+            pending--;
+            if (pending === 0) checkDomains();
+        }
+
+        ["to", "cc", "bcc"].forEach(function (field) {
+            item[field].getAsync(function (result) {
+                if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
+                    all = all.concat(result.value);
+                }
+                done();
+            });
         });
     } catch (e) {
         event.completed({ allowEvent: !CFG.blockOnError });
     }
 }
+
+Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
